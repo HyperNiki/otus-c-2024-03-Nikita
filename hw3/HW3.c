@@ -116,7 +116,7 @@ __uint8_t ht_insert(HashTable* table, const char* key, int value) {
         if (strcmp(cur_item->key, key) == 0) {
             cur_item->value = value;
             free_item(item);
-            return;
+            return 0;
         }
         index = get_hash(item->key, table->size, i);
         cur_item = table->items[index];
@@ -210,6 +210,7 @@ __uint8_t count_words(HashTable* table, const char* filename) {
     }
 
     fclose(file);
+    return 0;
 }
 
 void print_table(HashTable* table) {
