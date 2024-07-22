@@ -22,11 +22,11 @@ HashTable* create_table(int size);
 Ht_item* create_item(const char* key, int value);
 void free_item(Ht_item* item);
 void free_table(HashTable* table);
-void ht_insert(HashTable* table, const char* key, int value);
+__uint8_t ht_insert(HashTable* table, const char* key, int value);
 int ht_search(HashTable* table, const char* key);
 void ht_delete(HashTable* table, const char* key);
 void normalize_word(char* word);
-void count_words(HashTable* table, const char* filename);
+__uint8_t count_words(HashTable* table, const char* filename);
 void print_table(HashTable* table);
 
 static Ht_item* DELETED_ITEM = &(Ht_item){NULL, 0};
@@ -49,15 +49,36 @@ int get_hash(const char* str, int num_buckets, int attempt) {
 
 HashTable* create_table(int size) {
     HashTable* table = (HashTable*) malloc(sizeof(HashTable));
+    if (table == NULL)
+    {
+        printf("Ошибка 'malloc()'\n");
+        return NULL;
+    }
     table->size = size;
     table->count = 0;
     table->items = (Ht_item**) calloc(table->size, sizeof(Ht_item*));
+    if (table->items == NULL)
+    {
+        printf("Ошибка 'calloc()'\n");
+        return NULL;
+    }
     return table;
 }
 
 Ht_item* create_item(const char* key, int value) {
     Ht_item* item = (Ht_item*) malloc(sizeof(Ht_item));
+
+    if (item == NULL)
+        return NULL;
+
     item->key = (char*) malloc(strlen(key) + 1);
+
+    if (item->key == NULL)
+    {
+        free(item);
+        return NULL;
+    }
+
     strcpy(item->key, key);
     item->value = value;
     return item;
@@ -79,8 +100,15 @@ void free_table(HashTable* table) {
     free(table);
 }
 
-void ht_insert(HashTable* table, const char* key, int value) {
+__uint8_t ht_insert(HashTable* table, const char* key, int value) {
     Ht_item* item = create_item(key, value);
+
+    if (item == NULL)
+    {
+        printf("Ошибка 'create_item()'\n");
+        return 1;
+    }
+
     int index = get_hash(item->key, table->size, 0);
     Ht_item* cur_item = table->items[index];
     int i = 1;
@@ -96,6 +124,7 @@ void ht_insert(HashTable* table, const char* key, int value) {
     }
     table->items[index] = item;
     table->count++;
+    return 0;
 }
 
 int ht_search(HashTable* table, const char* key) {
@@ -154,7 +183,7 @@ void normalize_word(char* word) {
     word[len] = '\0';
 }
 
-void count_words(HashTable* table, const char* filename) {
+__uint8_t count_words(HashTable* table, const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Ошибка: не удалось открыть файл %s\n", filename);
@@ -166,9 +195,17 @@ void count_words(HashTable* table, const char* filename) {
         normalize_word(word);
         int count = ht_search(table, word);
         if (count == -1) {
-            ht_insert(table, word, 1);
+            if (ht_insert(table, word, 1))
+            {
+                printf("Ошибка 'ht_insert()'\n");
+                return 1;
+            }
         } else {
-            ht_insert(table, word, count + 1);
+            if (ht_insert(table, word, count + 1))
+            {
+                printf("Ошибка 'ht_insert()'\n");
+                return 1;
+            }
         }
     }
 
@@ -194,7 +231,17 @@ int main(int argc, char* argv[]) {
 
     HashTable* table = create_table(1024);
 
-    count_words(table, filename);
+    if (table == NULL)
+    {
+        printf("Ошибка 'create_table()'\n");
+        return 0;    
+    }
+
+    if(count_words(table, filename))
+    {
+        printf("Ошибка 'count_words()'\n");
+        return 0;
+    }
 
     print_table(table);
 
