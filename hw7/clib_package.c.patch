@@ -1,0 +1,28 @@
+--- clib-package.c.origin	2020-09-08 02:51:23.000000000 +0300
++++ clib-package.c	2024-07-25 15:21:22.076789875 +0300
+@@ -1489,7 +1489,7 @@
+       while (--i >= 0) {
+         fetch_package_file_thread_data_t *data = fetchs[i];
+         int *status = 0;
+-        pthread_join(data->thread, (void **)status);
++        pthread_join(data->thread, (void **)&status);
+         free(data);
+         fetchs[i] = NULL;
+ 
+@@ -1519,7 +1519,7 @@
+     fetch_package_file_thread_data_t *data = fetchs[i];
+     int *status = 0;
+ 
+-    pthread_join(data->thread, (void **)status);
++    pthread_join(data->thread, (void **)&status);
+ 
+     (void)pending--;
+     free(data);
+@@ -1588,6 +1588,7 @@
+     list_iterator_destroy(iterator);
+   if (command)
+     free(command);
++  clib_package_cleanup();
+ #ifdef HAVE_PTHREADS
+   if (NULL != pkg && NULL != pkg->src) {
+     if (pkg->src->len > 0) {
