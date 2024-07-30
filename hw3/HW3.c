@@ -4,6 +4,9 @@
 #include <ctype.h>
 #include <math.h>
 
+#define MAX_COUNT_WORDS 1024
+#define MAX_LEN_WORD    256
+
 typedef struct Ht_item {
     char* key;
     int value;
@@ -59,6 +62,7 @@ HashTable* create_table(int size) {
     table->items = (Ht_item**) calloc(table->size, sizeof(Ht_item*));
     if (table->items == NULL)
     {
+        free(table);
         printf("Ошибка 'calloc()'\n");
         return NULL;
     }
@@ -190,7 +194,7 @@ __uint8_t count_words(HashTable* table, const char* filename) {
         exit(1);
     }
 
-    char word[256];
+    char word[MAX_LEN_WORD];
     while (fscanf(file, "%255s", word) != EOF) {
         normalize_word(word);
         int count = ht_search(table, word);
@@ -230,22 +234,23 @@ int main(int argc, char* argv[]) {
 
     const char* filename = argv[1];
 
-    HashTable* table = create_table(1024);
+    HashTable* table = create_table(MAX_COUNT_WORDS);
 
     if (table == NULL)
     {
         printf("Ошибка 'create_table()'\n");
-        return 0;    
+        goto END;    
     }
 
     if(count_words(table, filename))
     {
         printf("Ошибка 'count_words()'\n");
-        return 0;
+        goto END;
     }
 
     print_table(table);
 
+END:
     free_table(table);
 
     return 0;
