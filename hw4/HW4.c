@@ -128,7 +128,7 @@ void fetch_weather_data(const char *city) {
             free(chunk.memory);
             curl_easy_cleanup(curl);
             curl_global_cleanup();
-            return;
+            goto END_FETCH;
         }
 
         long http_code = 0;
@@ -138,7 +138,7 @@ void fetch_weather_data(const char *city) {
             free(chunk.memory);
             curl_easy_cleanup(curl);
             curl_global_cleanup();
-            return;
+            goto END_FETCH;
         }
 
         cJSON *root = cJSON_Parse(chunk.memory);
@@ -147,7 +147,7 @@ void fetch_weather_data(const char *city) {
             free(chunk.memory);
             curl_easy_cleanup(curl);
             curl_global_cleanup();
-            return;
+            goto END_FETCH;
         }
 
         cJSON *nearest_area = cJSON_GetObjectItemCaseSensitive(root, "nearest_area");
@@ -167,11 +167,13 @@ void fetch_weather_data(const char *city) {
         print_weather_info(weather);
 
         cJSON_Delete(root);
-        free(chunk.memory);
         curl_easy_cleanup(curl);
     }
 
     curl_global_cleanup();
+
+END_FETCH:
+    free(chunk.memory);
 }
 
 int main(int argc, char *argv[]) {
