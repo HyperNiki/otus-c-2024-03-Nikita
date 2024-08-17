@@ -191,7 +191,7 @@ __uint8_t count_words(HashTable* table, const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
         fprintf(stderr, "Ошибка: не удалось открыть файл %s\n", filename);
-        exit(1);
+        return 1;
     }
 
     char word[MAX_LEN_WORD];
