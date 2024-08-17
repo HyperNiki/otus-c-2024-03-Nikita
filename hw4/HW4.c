@@ -135,7 +135,6 @@ void fetch_weather_data(const char *city) {
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
         if (http_code != HTTP_OK) {
             fprintf(stderr, "Ошибка: сервер вернул код ответа %ld\n", http_code);
-            free(chunk.memory);
             curl_easy_cleanup(curl);
             curl_global_cleanup();
             goto END_FETCH;
@@ -144,7 +143,6 @@ void fetch_weather_data(const char *city) {
         cJSON *root = cJSON_Parse(chunk.memory);
         if (root == NULL) {
             fprintf(stderr, "Error parsing JSON: %s\n", cJSON_GetErrorPtr());
-            free(chunk.memory);
             curl_easy_cleanup(curl);
             curl_global_cleanup();
             goto END_FETCH;
