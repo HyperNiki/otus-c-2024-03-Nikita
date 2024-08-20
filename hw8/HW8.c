@@ -1,6 +1,4 @@
 #include <gtk/gtk.h>
-
-#include <gtk/gtk.h>
 #include <dirent.h>
 #include <sys/stat.h>
 
@@ -32,7 +30,6 @@ static void populate_tree_store(GtkTreeStore *store, GtkTreeIter *parent, const 
 
 static GtkTreeStore* create_and_fill_model(void) {
     GtkTreeStore *store;
-    GtkTreeIter iter;
     gchar *current_dir;
 
     store = gtk_tree_store_new(1, G_TYPE_STRING);
